@@ -18,4 +18,33 @@ def load_data():
 				features[i][j]=1.0
 			else:
 				features[i][j]=float(a[j-1])
-	return label,features
+	features=np.transpose(features)
+	for i in range(1,n):
+		features[i]=(features[i]-np.mean(features[i]))/np.std(features[i])
+	return label,np.transpose(features)
+
+def hypothesis(features,theta):
+	return sigmoid(np.dot(features,np.transpose(theta)))
+
+def computeCost(htheta,label):
+	m=np.shape(label)
+	return -1.0*np.sum(label*np.log(htheta)+(1-label)*np.log(1-htheta))/m
+
+def gradient(features,theta,label):
+	htheta=hypothesis(features,theta)
+	m,n=np.shape(features)
+	cost=(htheta-label)/m
+	return np.dot(np.transpose(features),cost)
+def gradientDescent(features,theta,label,rate,iterations):
+	for i in range(iterations):
+		theta=theta-rate*gradient(features,theta,label)
+		print("Iteration number: "+str(i+1)+" Error: "+str(computeCost(hypothesis(features,theta),label)[0]))
+	return theta
+
+label,features=load_data()
+m,n=np.shape(features)
+theta=np.random.randn(n)
+rate=float(input("Enter Learning Rate: "))
+iterations=int(input("Enter the Number of Iterations: "))
+theta=gradientDescent(features,theta,label,rate,iterations)
+np.save("result.npy",theta)
